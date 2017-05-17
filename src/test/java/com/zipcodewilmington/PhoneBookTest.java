@@ -26,8 +26,8 @@ public class PhoneBookTest{
         name2 = "Chris Kim";
     }
 
-    @Test
-    public void lookupTest(){
+
+    public void lookupTest() throws RecordNotFoundException{
         String expected = "(302)731-1176";
 
         //When
@@ -37,6 +37,12 @@ public class PhoneBookTest{
 
         //Then
         assertEquals("Kirby Kim's phone number should correctly return (302)731-1176", expected, actual);
+    }
+
+
+    @Test (expected = RecordNotFoundException.class)
+    public void lookupTestRecordNotFound() throws RecordNotFoundException{
+        PhoneNumber firstNumber = book.lookup("Kirby Kim").get(0);
     }
 
     @Test
@@ -53,7 +59,7 @@ public class PhoneBookTest{
     }
 
     @Test
-    public void addTestForEntry(){
+    public void addTestForEntry() throws RecordNotFoundException{
         //Given
         String expected = "(302)598-6245";
 
@@ -65,11 +71,11 @@ public class PhoneBookTest{
         String actual = secondNumber.toString();
 
         //Then
-        assertEquals("The first phone number for Kirby Kim should be (302)598-6245", expected, actual);
+        assertEquals("The second phone number for Kirby Kim should be (302)598-6245", expected, actual);
     }
 
     @Test
-    public void removeTestForSameSize(){
+    public void removeTestForSameSize() throws RecordNotFoundException {
         //Given
         book.add(name1, num1);
         book.add(name2, num2);
@@ -85,7 +91,7 @@ public class PhoneBookTest{
     }
 
     @Test
-    public void removeTestForDifferentSize(){
+    public void removeTestForDifferentSize() throws RecordNotFoundException {
         //Given
         book.add(name1, num1);
         book.add(name2, num2);
@@ -99,30 +105,9 @@ public class PhoneBookTest{
         assertEquals("Size of phonebook should now be 1, because Chris had one number", expected, actual);
     }
 
-    @Test
-    public void removeTestInvalidInput(){
-        //Given
-        book.add(name1, num1);
-        book.add(name2, num2);
-        int expected = 2;
-
-        //When
-        book.remove("Tim Kim", "(302)388-8956");
-        int actual = book.size();
-
-        //Then
-        assertEquals("Tim Kim is not in phone book, size should be 2", expected, actual);
-    }
-
-    @Test
-    public void removeTestInvalidInputReturnsFalse(){
-        //Given is in @Before
-
-        //When
-        boolean actual = book.remove("Tim Kim", "(302)388-8956");
-
-        //Then
-        assertFalse("Tim Kim is not in phone book, remove(\"Tim Kim\") should return false" , actual);
+    @Test (expected = RecordNotFoundException.class)
+    public void removeTestThrowsRecordNotFoundException() throws RecordNotFoundException{
+        book.remove("Nonexistent Record", "(555)555-5555");
     }
 
     @Test
@@ -156,7 +141,7 @@ public class PhoneBookTest{
     }
 
     @Test
-    public void reverseLookupTest(){
+    public void reverseLookupTest() throws RecordNotFoundException, InvalidPhoneNumberFormatException {
         //Given
         book.add(name1, num1);
         book.add(name2, num2);
@@ -169,4 +154,15 @@ public class PhoneBookTest{
         assertEquals("The result of the lookup should be \"Chris Kim\"", expected, actual);
     }
 
+    @Test (expected = RecordNotFoundException.class)
+    public void reverseLookupRecordNotFoundTest() throws RecordNotFoundException, InvalidPhoneNumberFormatException {
+        //When
+        book.reverseLookup("(555)555-5555");
+    }
+
+    @Test (expected = InvalidPhoneNumberFormatException.class)
+    public void reverseLookupInvalidPhoneNumberTest() throws RecordNotFoundException, InvalidPhoneNumberFormatException {
+        //When
+        book.reverseLookup("Phone Number");
+    }
 }
